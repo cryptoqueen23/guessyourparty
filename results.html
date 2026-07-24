@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Your Results — Guess Your Party</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <img src="assets/phoenix-mark.svg" class="nav-logo" alt="Phoenix Securitas">
+      <span class="wordmark">PHOENIX <b>SECURITAS</b></span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#how-it-works">How It Works</a>
+      <a href="community.html">Community Polls</a>
+    </div>
+    <span class="step-tag nav-cta" style="padding:10px 4px;">Step 3 of 3</span>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="tri-rule" style="margin-top:22px;"></div>
+
+  <main id="results-root">
+    <div class="result-lead">
+      <p class="eyebrow">Your result</p>
+      <h1 id="headline">Calculating…</h1>
+      <p id="subhead" style="max-width:42ch;margin:0 auto;"></p>
+    </div>
+
+    <div class="ballot-meter">
+      <div class="meter-track">
+        <div class="meter-seg r" id="seg-r"></div>
+        <div class="meter-seg m" id="seg-m"></div>
+        <div class="meter-seg d" id="seg-d"></div>
+        <div class="meter-pin" id="meter-pin"></div>
+      </div>
+      <div class="meter-labels">
+        <span>Republican</span>
+        <span>Mixed</span>
+        <span>Democratic</span>
+      </div>
+    </div>
+
+    <div class="score-cards">
+      <div class="score-card r">
+        <div class="pct" id="pct-r">0%</div>
+        <div class="lab">Republican</div>
+      </div>
+      <div class="score-card m">
+        <div class="pct" id="pct-m">0%</div>
+        <div class="lab">Mixed</div>
+      </div>
+      <div class="score-card d">
+        <div class="pct" id="pct-d">0%</div>
+        <div class="lab">Democratic</div>
+      </div>
+    </div>
+
+    <section class="section-block">
+      <h2>What shaped your result</h2>
+      <p style="margin-bottom:14px;">Your strongest, most polarizing answers pulled the needle most. Here's what mattered most:</p>
+      <ul class="driver-list" id="driver-list"></ul>
+    </section>
+
+    <section class="section-block">
+      <h2 id="platform-heading">Platform snapshot</h2>
+      <div id="platform-container"></div>
+    </section>
+
+    <section class="section-block">
+      <h2>Benefits &amp; tradeoffs of your positions</h2>
+      <p style="margin-bottom:14px;">A neutral look at the upside and cost of the stances that drove your result.</p>
+      <div class="tradeoff-grid" id="tradeoff-grid"></div>
+    </section>
+
+    <section class="section-block">
+      <h2>Fiscal snapshot</h2>
+      <p style="margin-bottom:14px;">Where these particular positions could touch taxes, spending, or the national debt.</p>
+      <div class="form-card" style="padding:6px 12px 4px;">
+        <table class="impact-table">
+          <thead>
+            <tr><th>Position</th><th>Taxes</th><th>Spending</th><th>Debt</th></tr>
+          </thead>
+          <tbody id="impact-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <button type="button" class="breakdown-toggle" id="breakdown-toggle">
+        See the full breakdown of every question you answered
+        <span class="chevron" aria-hidden="true">▾</span>
+      </button>
+      <div id="breakdown-panel" class="breakdown-panel" hidden>
+        <p style="margin:0 0 14px;">A neutral explanation, potential benefit, and tradeoff for each policy question you answered decisively.</p>
+        <div id="breakdown-list"></div>
+      </div>
+    </section>
+
+    <div class="disclaimer" id="disclaimer">
+      This tool offers a simplified, directional estimate based on your answers to a fixed set of questions. It is not a scientific assessment, political endorsement, or substitute for research into candidates and platforms.
+    </div>
+
+    <div class="result-actions">
+      <a class="btn btn-primary" href="community.html">See how others answered</a>
+      <a class="btn btn-ghost" href="quiz.html" id="retake-btn">Retake the quiz</a>
+    </div>
+  </main>
+
+</div>
+
+<footer class="site-footer-full">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/phoenix-mark.svg" alt="Phoenix Securitas">
+        <div class="footer-brand-text">Brought to you by<br><a href="https://tree.phoenixsecuritas.com">Phoenix Securitas</a></div>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#about">About</a>
+        <a href="community.html">Community Polls</a>
+        <a href="https://tree.phoenixsecuritas.com">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Independent &amp; nonpartisan. Not affiliated with any political party or campaign.</span>
+      <span class="footer-tagline">Learn · Protect · Make Informed Decisions</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/questions.js"></script>
+<script src="js/results.js"></script>
+</body>
+</html>
