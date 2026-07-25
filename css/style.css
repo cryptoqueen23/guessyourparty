@@ -175,7 +175,7 @@ main { flex: 1; display: flex; flex-direction: column; }
   transition: color .12s ease;
 }
 .nav-links a:hover, .nav-links a.active { color: var(--ink); }
-.nav-cta {
+.site-nav .nav-cta {
   flex: none;
   padding: 10px 20px;
   font-size: 13.5px;
