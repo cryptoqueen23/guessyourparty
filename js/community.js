@@ -1,6 +1,26 @@
 (function () {
-  // Placeholder data only — swap this module for a fetch against a published
-  // Google Sheet (or the embed slot on the page) once live results exist.
+  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-qjK40YIzKS9A6M_L7kDW9iSF-ADH4QAsCDXvtyGjL4L4EZXXF0AD1SPMxWHmscID/exec';
+
+  fetch(RESULTS_ENDPOINT)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.ok) throw new Error(data.error || 'unknown error');
+      document.getElementById('ov-bar-r').style.width = data.rAvg + '%';
+      document.getElementById('ov-bar-m').style.width = data.mAvg + '%';
+      document.getElementById('ov-bar-d').style.width = data.dAvg + '%';
+      document.getElementById('ov-pct-r').textContent = data.rAvg + '%';
+      document.getElementById('ov-pct-m').textContent = data.mAvg + '%';
+      document.getElementById('ov-pct-d').textContent = data.dAvg + '%';
+      document.getElementById('ov-count').textContent = data.count === 0
+        ? 'No quizzes completed yet — be the first.'
+        : `Based on ${data.count.toLocaleString()} completed quiz${data.count === 1 ? '' : 'zes'}.`;
+    })
+    .catch(() => {
+      document.getElementById('ov-count').textContent = 'Live results are temporarily unavailable.';
+    });
+
+  // Placeholder data — no per-question or per-age breakdown is collected yet,
+  // so these two sections stay illustrative until that data exists.
 
   const DIVISIVE = [
     { q: "Abortion access should be protected as a legal right nationwide.", r: 41, m: 12, d: 47 },

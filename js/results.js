@@ -1,5 +1,17 @@
 (function () {
   const STORAGE_KEY = 'gyp_answers';
+  const SUBMITTED_KEY = 'gyp_submitted';
+  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-qjK40YIzKS9A6M_L7kDW9iSF-ADH4QAsCDXvtyGjL4L4EZXXF0AD1SPMxWHmscID/exec';
+
+  function submitResult(rPct, dPct, mPct) {
+    if (sessionStorage.getItem(SUBMITTED_KEY)) return;
+    sessionStorage.setItem(SUBMITTED_KEY, '1');
+    fetch(RESULTS_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ rPct, dPct, mPct }),
+    }).catch(() => { /* best-effort; don't block the results page on this */ });
+  }
 
   const PLATFORMS = {
     R: {
@@ -58,6 +70,8 @@
 
   function render() {
     const { rPct, dPct, mPct, decisive } = compute();
+
+    if (decisive.length > 0) submitResult(rPct, dPct, mPct);
 
     document.getElementById('pct-r').textContent = rPct + '%';
     document.getElementById('pct-m').textContent = mPct + '%';
