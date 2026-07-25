@@ -1,5 +1,5 @@
 (function () {
-  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzfglcUUs6PZUA0llkYU7cNWNH0JuVgOsH3IctRILZ4fgRdWEB7Fn26VAcjpJIXODCv-g/exec';
+  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwtLk8j3xLFFwM5vubRUz-q3M2lYOvz6dfE4QiyKRP7ODspAjPyVafNFRqf_vFPRSBXYA/exec';
   const NOT_ENOUGH = 'Not enough responses yet to calculate this statistic.';
 
   const CATEGORY_LABELS = {

@@ -1,7 +1,7 @@
 (function () {
   const STORAGE_KEY = 'gyp_answers';
   const SUBMITTED_KEY = 'gyp_submitted';
-  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzfglcUUs6PZUA0llkYU7cNWNH0JuVgOsH3IctRILZ4fgRdWEB7Fn26VAcjpJIXODCv-g/exec';
+  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwtLk8j3xLFFwM5vubRUz-q3M2lYOvz6dfE4QiyKRP7ODspAjPyVafNFRqf_vFPRSBXYA/exec';
 
   const CATEGORY_KEYS = ['economy', 'healthcare', 'immigration', 'guns', 'abortion', 'education', 'energy', 'crime', 'foreignPolicy', 'elections'];
 
