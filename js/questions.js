@@ -16,6 +16,46 @@
              the results page for questions the user answered decisively
 */
 
+// Maps each raw question category onto one of the 10 tracked "lean" buckets
+// used for community analytics. Categories omitted here (AI Regulation, Free
+// Speech, Social Media Regulation, Religious Liberty, States' Rights,
+// Marijuana Legalization, Medical Transition for Minors) don't fit any bucket
+// cleanly and are excluded from category-lean analysis.
+const CATEGORY_LEAN_MAP = {
+  "Taxes": "economy",
+  "Government Spending": "economy",
+  "National Debt": "economy",
+  "Inflation": "economy",
+  "Tariffs": "economy",
+  "Size of the Federal Government": "economy",
+  "Social Security": "economy",
+  "Healthcare": "healthcare",
+  "Medicare": "healthcare",
+  "Immigration": "immigration",
+  "Border Security": "immigration",
+  "Birthright Citizenship": "immigration",
+  "Gun Rights": "guns",
+  "Abortion": "abortion",
+  "Education": "education",
+  "Public Education": "education",
+  "School Choice": "education",
+  "Parents' Rights in Schools": "education",
+  "Domestic Energy Production": "energy",
+  "Nuclear Energy": "energy",
+  "Climate Policy": "energy",
+  "Crime": "crime",
+  "Criminal Justice": "crime",
+  "Death Penalty": "crime",
+  "Police Funding": "crime",
+  "Foreign Policy": "foreignPolicy",
+  "China": "foreignPolicy",
+  "Ukraine": "foreignPolicy",
+  "Foreign Aid": "foreignPolicy",
+  "Mail-In Voting": "elections",
+  "Voter ID": "elections",
+  "Congressional Term Limits": "elections",
+};
+
 const QUESTIONS = [
 
   // ---------- Taxes ----------

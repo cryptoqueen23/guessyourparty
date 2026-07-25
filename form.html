@@ -34,7 +34,7 @@
   <main>
     <p class="eyebrow">Before you start</p>
     <h1 style="font-size:28px;margin-bottom:10px;">Quick intro</h1>
-    <p style="margin-bottom:24px;">This helps us tag your results anonymously for the community poll. It takes about 15 seconds.</p>
+    <p style="margin-bottom:24px;">This helps us save your result and add it to the community poll. It takes about 15 seconds.</p>
 
     <!--
       SITE OWNER NOTE:
@@ -90,9 +90,16 @@
         <label for="name">Name <span class="optional">(optional)</span></label>
         <input type="text" id="name" name="name" placeholder="First name" autocomplete="given-name">
       </div>
+
+      <div class="field field-checkbox" id="field-marketing">
+        <label for="marketing">
+          <input type="checkbox" id="marketing" name="marketing">
+          Send me occasional updates about new Phoenix Securitas tools
+        </label>
+      </div>
     </form>
 
-    <p class="privacy-note">Your email is only used to save your result if you want a copy. We never share individual responses — community results are shown as aggregate percentages only.</p>
+    <p class="privacy-note">We never show your individual answers to anyone. Your email, name, age range, and state are stored alongside your result and category breakdown so we can build honest community statistics — they're never sold or shared, and you're only added to our mailing list if you check the box above.</p>
 
     <div class="cta-stack">
       <button class="btn btn-primary" id="continue-btn" type="button">Continue to quiz</button>
@@ -139,6 +146,7 @@
     const age = document.getElementById('age').value;
     const state = document.getElementById('state').value;
     const name = document.getElementById('name').value.trim();
+    const marketing = document.getElementById('marketing').checked;
 
     let ok = true;
     toggleError('field-email', !validEmail(email));
@@ -148,7 +156,7 @@
 
     if (!ok) return;
 
-    sessionStorage.setItem('gyp_profile', JSON.stringify({ email, age, state, name }));
+    sessionStorage.setItem('gyp_profile', JSON.stringify({ email, age, state, name, marketing }));
     window.location.href = 'quiz.html';
   });
 

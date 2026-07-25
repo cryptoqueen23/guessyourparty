@@ -1,15 +1,63 @@
 (function () {
   const STORAGE_KEY = 'gyp_answers';
   const SUBMITTED_KEY = 'gyp_submitted';
-  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-qjK40YIzKS9A6M_L7kDW9iSF-ADH4QAsCDXvtyGjL4L4EZXXF0AD1SPMxWHmscID/exec';
+  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzfglcUUs6PZUA0llkYU7cNWNH0JuVgOsH3IctRILZ4fgRdWEB7Fn26VAcjpJIXODCv-g/exec';
 
-  function submitResult(rPct, dPct, mPct) {
+  const CATEGORY_KEYS = ['economy', 'healthcare', 'immigration', 'guns', 'abortion', 'education', 'energy', 'crime', 'foreignPolicy', 'elections'];
+
+  function loadProfile() {
+    try {
+      const raw = sessionStorage.getItem('gyp_profile');
+      return raw ? JSON.parse(raw) : {};
+    } catch (e) { return {}; }
+  }
+
+  function computeCategoryLeans(decisive) {
+    const weights = {};
+    CATEGORY_KEYS.forEach(k => { weights[k] = { r: 0, d: 0 }; });
+
+    decisive.forEach(d => {
+      const bucket = CATEGORY_LEAN_MAP[d.q.category];
+      if (!bucket) return;
+      weights[bucket][d.matched === 'R' ? 'r' : 'd'] += d.q.weight;
+    });
+
+    const leans = {};
+    CATEGORY_KEYS.forEach(k => {
+      const { r, d } = weights[k];
+      leans[k] = r === 0 && d === 0 ? 'N/A' : r === d ? 'Mixed' : r > d ? 'Republican' : 'Democratic';
+    });
+    return leans;
+  }
+
+  function submitResult(rPct, dPct, mPct, decisive) {
     if (sessionStorage.getItem(SUBMITTED_KEY)) return;
     sessionStorage.setItem(SUBMITTED_KEY, '1');
+
+    const profile = loadProfile();
+    const leans = computeCategoryLeans(decisive);
+
     fetch(RESULTS_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ rPct, dPct, mPct }),
+      body: JSON.stringify({
+        email: profile.email || '',
+        firstName: profile.name || '',
+        marketingOptIn: !!profile.marketing,
+        ageRange: profile.age || '',
+        state: profile.state || '',
+        rPct, dPct, mPct,
+        economyLean: leans.economy,
+        healthcareLean: leans.healthcare,
+        immigrationLean: leans.immigration,
+        gunsLean: leans.guns,
+        abortionLean: leans.abortion,
+        educationLean: leans.education,
+        energyLean: leans.energy,
+        crimeLean: leans.crime,
+        foreignPolicyLean: leans.foreignPolicy,
+        electionsLean: leans.elections,
+      }),
     }).catch(() => { /* best-effort; don't block the results page on this */ });
   }
 
@@ -71,7 +119,7 @@
   function render() {
     const { rPct, dPct, mPct, decisive } = compute();
 
-    if (decisive.length > 0) submitResult(rPct, dPct, mPct);
+    if (decisive.length > 0) submitResult(rPct, dPct, mPct, decisive);
 
     document.getElementById('pct-r').textContent = rPct + '%';
     document.getElementById('pct-m').textContent = mPct + '%';

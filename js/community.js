@@ -1,42 +1,21 @@
 (function () {
-  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbx-qjK40YIzKS9A6M_L7kDW9iSF-ADH4QAsCDXvtyGjL4L4EZXXF0AD1SPMxWHmscID/exec';
+  const RESULTS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzfglcUUs6PZUA0llkYU7cNWNH0JuVgOsH3IctRILZ4fgRdWEB7Fn26VAcjpJIXODCv-g/exec';
+  const NOT_ENOUGH = 'Not enough responses yet to calculate this statistic.';
 
-  fetch(RESULTS_ENDPOINT)
-    .then(res => res.json())
-    .then(data => {
-      if (!data.ok) throw new Error(data.error || 'unknown error');
-      document.getElementById('ov-bar-r').style.width = data.rAvg + '%';
-      document.getElementById('ov-bar-m').style.width = data.mAvg + '%';
-      document.getElementById('ov-bar-d').style.width = data.dAvg + '%';
-      document.getElementById('ov-pct-r').textContent = data.rAvg + '%';
-      document.getElementById('ov-pct-m').textContent = data.mAvg + '%';
-      document.getElementById('ov-pct-d').textContent = data.dAvg + '%';
-      document.getElementById('ov-count').textContent = data.count === 0
-        ? 'No quizzes completed yet — be the first.'
-        : `Based on ${data.count.toLocaleString()} completed quiz${data.count === 1 ? '' : 'zes'}.`;
-    })
-    .catch(() => {
-      document.getElementById('ov-count').textContent = 'Live results are temporarily unavailable.';
-    });
-
-  // Placeholder data — no per-question or per-age breakdown is collected yet,
-  // so these two sections stay illustrative until that data exists.
-
-  const DIVISIVE = [
-    { q: "Abortion access should be protected as a legal right nationwide.", r: 41, m: 12, d: 47 },
-    { q: "Gun ownership rights should face minimal government restriction.", r: 44, m: 14, d: 42 },
-    { q: "The government should offer a public health insurance option available to everyone.", r: 33, m: 15, d: 52 },
-    { q: "Undocumented immigrants without a criminal record should have a path to citizenship.", r: 30, m: 18, d: 52 },
-  ];
-
-  const AGE = [
-    { label: "18–24", r: 29, m: 22, d: 49 },
-    { label: "25–34", r: 34, m: 24, d: 42 },
-    { label: "35–44", r: 39, m: 23, d: 38 },
-    { label: "45–54", r: 43, m: 22, d: 35 },
-    { label: "55–64", r: 47, m: 21, d: 32 },
-    { label: "65+", r: 51, m: 19, d: 30 },
-  ];
+  const CATEGORY_LABELS = {
+    economy: 'Economy',
+    healthcare: 'Healthcare',
+    immigration: 'Immigration',
+    guns: 'Guns',
+    abortion: 'Abortion',
+    education: 'Education',
+    energy: 'Energy',
+    crime: 'Crime',
+    foreignPolicy: 'Foreign Policy',
+    elections: 'Elections',
+  };
+  const CATEGORY_ORDER = ['economy', 'healthcare', 'immigration', 'guns', 'abortion', 'education', 'energy', 'crime', 'foreignPolicy', 'elections'];
+  const AGE_ORDER = ['Under 18', '18–24', '25–34', '35–44', '45–54', '55–64', '65+'];
 
   function barRow(label, r, m, d) {
     return `
@@ -60,9 +39,93 @@
       </div>`;
   }
 
-  document.getElementById('divisive-list').innerHTML =
-    DIVISIVE.map(item => barRow(item.q, item.r, item.m, item.d)).join('');
+  function insufficientNote(label) {
+    return `<p style="font-size:12.5px;color:var(--slate);margin-bottom:14px;">${label ? `<strong>${label}:</strong> ` : ''}${NOT_ENOUGH}</p>`;
+  }
 
-  document.getElementById('age-list').innerHTML =
-    AGE.map(item => barRow(item.label, item.r, item.m, item.d)).join('');
+  function renderOverall(overall) {
+    const el = document.getElementById('overall-block');
+    if (overall.insufficient) {
+      el.innerHTML = insufficientNote();
+      return;
+    }
+    el.innerHTML = barRow('', overall.rAvg, overall.mAvg, overall.dAvg) +
+      `<p style="font-size:12.5px;color:var(--slate);">Based on ${overall.count.toLocaleString()} completed quiz${overall.count === 1 ? '' : 'zes'}.</p>`;
+  }
+
+  function renderCategoryList(byCategory) {
+    const el = document.getElementById('category-list');
+    el.innerHTML = CATEGORY_ORDER.map(key => {
+      const c = byCategory[key];
+      const label = CATEGORY_LABELS[key];
+      if (!c || c.insufficient) return insufficientNote(label);
+      return barRow(label, c.rPct, c.mPct, c.dPct);
+    }).join('');
+  }
+
+  function renderRanked(containerId, keys, byCategory, emptyMessage) {
+    const el = document.getElementById(containerId);
+    const usable = keys.filter(k => byCategory[k] && !byCategory[k].insufficient);
+    if (usable.length === 0) {
+      el.innerHTML = insufficientNote();
+      return;
+    }
+    el.innerHTML = usable.slice(0, 5).map(key => {
+      const c = byCategory[key];
+      return barRow(CATEGORY_LABELS[key], c.rPct, c.mPct, c.dPct);
+    }).join('');
+  }
+
+  function renderGroupList(containerId, groupData, orderHint) {
+    const el = document.getElementById(containerId);
+    const keys = Object.keys(groupData);
+    if (keys.length === 0) {
+      el.innerHTML = insufficientNote();
+      return;
+    }
+    keys.sort((a, b) => {
+      if (orderHint) {
+        const ai = orderHint.indexOf(a), bi = orderHint.indexOf(b);
+        if (ai !== -1 && bi !== -1) return ai - bi;
+      }
+      return a.localeCompare(b);
+    });
+    el.innerHTML = keys.map(key => {
+      const g = groupData[key];
+      if (g.insufficient) return insufficientNote(key);
+      return barRow(`${key} <span style="font-weight:400;color:var(--slate);">(${g.count})</span>`, g.rAvg, g.mAvg, g.dAvg);
+    }).join('');
+  }
+
+  function renderTrends(trends) {
+    const el = document.getElementById('trends-block');
+    if (!trends || trends.length === 0) {
+      el.innerHTML = insufficientNote();
+      return;
+    }
+    const rows = trends.slice(-30).map(t => `<tr><td>${t.date}</td><td>${t.count}</td></tr>`).join('');
+    el.innerHTML = `
+      <table class="impact-table">
+        <thead><tr><th>Date</th><th>Completions</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  fetch(RESULTS_ENDPOINT)
+    .then(res => res.json())
+    .then(data => {
+      if (!data.ok) throw new Error(data.error || 'unknown error');
+      renderOverall(data.overall);
+      renderCategoryList(data.byCategory);
+      renderRanked('most-divided-list', data.mostDivided, data.byCategory);
+      renderRanked('strongest-r-list', data.strongestR, data.byCategory);
+      renderRanked('strongest-d-list', data.strongestD, data.byCategory);
+      renderGroupList('age-list', data.byAge, AGE_ORDER);
+      renderGroupList('state-list', data.byState, null);
+      renderTrends(data.trends);
+    })
+    .catch(() => {
+      ['overall-block', 'category-list', 'most-divided-list', 'strongest-r-list', 'strongest-d-list', 'age-list', 'state-list', 'trends-block']
+        .forEach(id => { document.getElementById(id).innerHTML = '<p style="font-size:12.5px;color:var(--slate);">Live results are temporarily unavailable.</p>'; });
+    });
 })();
