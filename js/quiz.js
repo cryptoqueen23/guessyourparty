@@ -46,7 +46,8 @@
   function load() {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : new Array(total).fill(undefined);
+      // sessionStorage round-trips undefined array slots as null via JSON — normalize back
+      return raw ? JSON.parse(raw).map(a => (a === null ? undefined : a)) : new Array(total).fill(undefined);
     } catch (e) {
       return new Array(total).fill(undefined);
     }

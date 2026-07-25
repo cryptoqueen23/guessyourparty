@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tie-Breaker — Guess Your Party</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">
+      <img src="assets/phoenix-mark.svg" class="nav-logo" alt="Phoenix Securitas">
+      <span class="wordmark">PHOENIX <b>SECURITAS</b></span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="index.html#about">About</a>
+      <a href="index.html#how-it-works">How It Works</a>
+      <a href="community.html">Community Polls</a>
+    </div>
+    <span class="step-tag nav-cta" style="padding:10px 4px;">Tie-breaker round</span>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <div class="progress-track" style="margin-top:22px;"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="progress-meta">
+    <span id="progress-count">Question 1 of 5</span>
+    <span id="progress-pct">0%</span>
+  </div>
+
+  <main>
+    <p style="text-align:center;font-size:12.5px;color:var(--slate);margin:14px 0 0;">A few more high-impact questions to sharpen your result.</p>
+    <div class="quiz-stage">
+      <div class="q-category" id="q-category">Category</div>
+      <h1 class="q-text" id="q-text">Loading question…</h1>
+
+      <div class="answers">
+        <button class="ans-btn" data-a="yes" id="btn-yes">
+          <span>Yes</span><span class="k">Y</span>
+        </button>
+        <button class="ans-btn" data-a="no" id="btn-no">
+          <span>No</span><span class="k">N</span>
+        </button>
+        <button class="ans-btn" data-a="unsure" id="btn-unsure">
+          <span>Unsure</span><span class="k">U</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="quiz-footer">
+      <button class="btn-link" id="back-btn" type="button">← Previous</button>
+      <button class="btn-link" id="skip-btn" type="button">Skip →</button>
+    </div>
+  </main>
+</div>
+
+<footer class="site-footer-full">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/phoenix-mark.svg" alt="Phoenix Securitas">
+        <div class="footer-brand-text">Brought to you by<br><a href="https://tree.phoenixsecuritas.com">Phoenix Securitas</a></div>
+      </div>
+      <div class="footer-links">
+        <a href="index.html">Home</a>
+        <a href="index.html#about">About</a>
+        <a href="community.html">Community Polls</a>
+        <a href="https://tree.phoenixsecuritas.com">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Independent &amp; nonpartisan. Not affiliated with any political party or campaign.</span>
+      <span class="footer-tagline">Learn · Protect · Make Informed Decisions</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/questions.js"></script>
+<script src="js/tiebreaker.js"></script>
+</body>
+</html>

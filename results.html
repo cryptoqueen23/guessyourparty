@@ -29,6 +29,19 @@
   <div class="tri-rule" style="margin-top:22px;"></div>
 
   <main id="results-root">
+    <div id="confidence-gate" hidden>
+      <div class="result-lead">
+        <p class="eyebrow">Your result</p>
+        <h1 id="gate-headline">This is close</h1>
+        <p id="gate-subhead" style="max-width:42ch;margin:0 auto;"></p>
+      </div>
+      <div class="cta-stack" style="margin-top:18px;">
+        <a class="btn btn-primary" href="tiebreaker.html">Answer 5 more questions</a>
+        <button type="button" class="btn-link" id="gate-skip-btn">See my result anyway</button>
+      </div>
+    </div>
+
+    <div id="full-results" hidden>
     <div class="result-lead">
       <p class="eyebrow">Your result</p>
       <h1 id="headline">Calculating…</h1>
@@ -112,6 +125,7 @@
     <div class="result-actions">
       <a class="btn btn-primary" href="community.html">See how others answered</a>
       <a class="btn btn-ghost" href="quiz.html" id="retake-btn">Retake the quiz</a>
+    </div>
     </div>
   </main>
 

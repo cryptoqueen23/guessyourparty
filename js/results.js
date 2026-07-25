@@ -75,34 +75,63 @@
   function loadAnswers() {
     try {
       const raw = sessionStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : [];
+      // sessionStorage round-trips undefined array slots as null via JSON — normalize back
+      return raw ? JSON.parse(raw).map(a => (a === null ? undefined : a)) : [];
     } catch (e) { return []; }
   }
 
-  function compute() {
-    const answers = loadAnswers();
+  function scoreFromAnswers(questionList, answers) {
     let rScore = 0, dScore = 0, mScore = 0;
     const decisive = []; // { q, answer, matched: 'R'|'D' }
-
-    QUESTIONS.forEach((q, i) => {
+    questionList.forEach((q, i) => {
       const a = answers[i];
       if (a === undefined) return;
       if (a === 'unsure') { mScore += q.weight; return; }
       if (a === q.rAnswer) { rScore += q.weight; decisive.push({ q, answer: a, matched: 'R' }); }
       else { dScore += q.weight; decisive.push({ q, answer: a, matched: 'D' }); }
     });
+    return { rScore, dScore, mScore, decisive };
+  }
 
-    const totalScored = rScore + dScore + mScore;
-    if (totalScored === 0) {
-      return { rPct: 0, dPct: 0, mPct: 100, decisive, answeredCount: 0 };
+  function toPct(rScore, dScore, mScore) {
+    const total = rScore + dScore + mScore;
+    if (total === 0) return { rPct: 0, dPct: 0, mPct: 100 };
+    let rPct = Math.round((rScore / total) * 100);
+    let dPct = Math.round((dScore / total) * 100);
+    let mPct = 100 - rPct - dPct;
+    if (mPct < 0) mPct = 0; // guard against rounding edge cases
+    return { rPct, dPct, mPct };
+  }
+
+  function tiebreakerCompleted() {
+    return sessionStorage.getItem('gyp_tiebreaker_done') === '1';
+  }
+
+  function computeTiebreaker() {
+    let ids, tbAnswers;
+    try { ids = JSON.parse(sessionStorage.getItem('gyp_tiebreaker_ids') || 'null'); } catch (e) { ids = null; }
+    try {
+      const raw = JSON.parse(sessionStorage.getItem('gyp_tiebreaker_answers') || 'null');
+      tbAnswers = raw ? raw.map(a => (a === null ? undefined : a)) : null;
+    } catch (e) { tbAnswers = null; }
+    if (!ids || !tbAnswers) return { rScore: 0, dScore: 0, mScore: 0, decisive: [] };
+    const qs = ids.map(id => TIEBREAKER_QUESTIONS.find(q => q.id === id)).filter(Boolean);
+    return scoreFromAnswers(qs, tbAnswers);
+  }
+
+  function compute() {
+    const main = scoreFromAnswers(QUESTIONS, loadAnswers());
+    let rScore = main.rScore, dScore = main.dScore, mScore = main.mScore;
+    let decisive = main.decisive.slice();
+
+    if (tiebreakerCompleted()) {
+      const tb = computeTiebreaker();
+      rScore += tb.rScore; dScore += tb.dScore; mScore += tb.mScore;
+      decisive = decisive.concat(tb.decisive);
     }
 
-    let rPct = Math.round((rScore / totalScored) * 100);
-    let dPct = Math.round((dScore / totalScored) * 100);
-    let mPct = 100 - rPct - dPct;
-    if (mPct < 0) { mPct = 0; } // guard against rounding edge cases
-
-    return { rPct, dPct, mPct, decisive, answeredCount: rScore + dScore + mScore > 0 ? decisive.length + (mScore > 0 ? 1 : 0) : 0 };
+    const { rPct, dPct, mPct } = toPct(rScore, dScore, mScore);
+    return { rPct, dPct, mPct, decisive, answeredCount: decisive.length };
   }
 
   function headlineFor(rPct, dPct) {
@@ -245,6 +274,10 @@
     retakeBtn.addEventListener('click', () => {
       sessionStorage.removeItem(STORAGE_KEY);
       sessionStorage.removeItem('gyp_order');
+      sessionStorage.removeItem('gyp_tiebreaker_ids');
+      sessionStorage.removeItem('gyp_tiebreaker_answers');
+      sessionStorage.removeItem('gyp_tiebreaker_done');
+      sessionStorage.removeItem(SUBMITTED_KEY);
     });
   }
 
@@ -263,6 +296,41 @@
     });
   }
 
-  render();
+  function showFullResults() {
+    document.getElementById('confidence-gate').hidden = true;
+    document.getElementById('full-results').hidden = false;
+    render();
+  }
+
+  function showConfidenceGate(preliminary) {
+    const gateEl = document.getElementById('confidence-gate');
+    gateEl.hidden = false;
+
+    const bothUnder50 = preliminary.rPct < 50 && preliminary.dPct < 50;
+    const top = Math.max(preliminary.rPct, preliminary.dPct);
+
+    document.getElementById('gate-headline').textContent = bothUnder50
+      ? 'Your views are closely split between both major party platforms.'
+      : 'Your result is close';
+    document.getElementById('gate-subhead').textContent = bothUnder50
+      ? "Neither platform stands out clearly yet. Answer 5 more high-impact questions to sharpen your result, or see it now."
+      : `You're currently at ${top}% toward one side — 5 more high-impact questions can sharpen that before we call it.`;
+
+    document.getElementById('gate-skip-btn').addEventListener('click', showFullResults, { once: true });
+  }
+
+  function init() {
+    const preliminary = compute();
+    const top = Math.max(preliminary.rPct, preliminary.dPct);
+    const needsGate = !tiebreakerCompleted() && preliminary.decisive.length > 0 && top < 60;
+
+    if (needsGate) {
+      showConfidenceGate(preliminary);
+    } else {
+      showFullResults();
+    }
+  }
+
+  init();
 })();
 
